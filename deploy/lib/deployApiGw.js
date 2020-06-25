@@ -3,31 +3,28 @@
 const BbPromise = require('bluebird');
 
 module.exports = {
-  deployRoute(route) {
-    return this.provider.client().then(ow => {
-      if (this.options.verbose) {
+  async deployRoute(route) {
+    const ow = await this.provider.client();
+    if (this.options.verbose) {
         this.serverless.cli.log(`Deploying API Gateway Route: ${JSON.stringify(route)}`);
-      }
-      return async function() {
-        var i = 0;
-        var error = null;
-        for(i = 0; i < 10; i++) {
-          try {
+    }
+    var i = 0;
+    var error = null;
+    for (i = 0; i < 10; i++) {
+        try {
             await ow.routes.create(route)
             if (this.options.verbose) {
-              this.serverless.cli.log(`Deployed API Gateway Route: ${JSON.stringify(route)}`);
+                this.serverless.cli.log(`Deployed API Gateway Route: ${JSON.stringify(route)}`);
             }
             break;
-          } catch(err) {
+        } catch (err) {
             this.serverless.cli.log(`Failed to deploy API Gateway Route: ${JSON.stringify(route)}. Retry ${i}...`);
             error = new this.serverless.classes.Error(`Failed to deploy API Gateway route (${route.relpath}) due to error: ${err.message}`);
-          }
         }
-        if (error != null) {
-          throw error;
-        }
-      }
-    });
+    }
+    if (error != null) {
+        throw error;
+    }
   },
 
   // should only do this if config exists....

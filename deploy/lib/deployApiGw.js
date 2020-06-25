@@ -8,16 +8,25 @@ module.exports = {
       if (this.options.verbose) {
         this.serverless.cli.log(`Deploying API Gateway Route: ${JSON.stringify(route)}`);
       }
-      return ow.routes.create(route)
-        .then(() => {
-          if (this.options.verbose) {
-            this.serverless.cli.log(`Deployed API Gateway Route: ${JSON.stringify(route)}`);
+      return async function() {
+        var i = 0;
+        var error = null;
+        for(i = 0; i < 10; i++) {
+          try {
+            await ow.routes.create(route)
+            if (this.options.verbose) {
+              this.serverless.cli.log(`Deployed API Gateway Route: ${JSON.stringify(route)}`);
+            }
+            break;
+          } catch(err) {
+            this.serverless.cli.log(`Failed to deploy API Gateway Route: ${JSON.stringify(route)}. Retry ${i}...`);
+            error = new this.serverless.classes.Error(`Failed to deploy API Gateway route (${route.relpath}) due to error: ${err.message}`);
           }
-        }).catch(err => {
-        throw new this.serverless.classes.Error(
-          `Failed to deploy API Gateway route (${route.relpath}) due to error: ${err.message}`
-        );
-      })
+        }
+        if (error != null) {
+          throw error;
+        }
+      }
     });
   },
 

@@ -8,14 +8,14 @@ module.exports = {
     if (this.options.verbose) {
         this.serverless.cli.log(`Deploying API Gateway Route: ${JSON.stringify(route)}`);
     }
-    var i = 0;
-    var error = null;
-    for (i = 0; i < 10; i++) {
+    let error = null;
+    for (let i = 0; i < 10; i++) {
         try {
             await ow.routes.create(route)
             if (this.options.verbose) {
                 this.serverless.cli.log(`Deployed API Gateway Route: ${JSON.stringify(route)}`);
             }
+            error = null;
             break;
         } catch (err) {
             this.serverless.cli.log(`Failed to deploy API Gateway Route: ${JSON.stringify(route)}. Retry ${i}...`);
